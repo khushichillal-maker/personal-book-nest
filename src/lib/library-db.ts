@@ -3,7 +3,7 @@ export type Book = {
   title: string;
   size: number;
   addedAt: number;
-  cover?: string;
+  cover?: string | undefined;
   favorite: boolean;
   finished: boolean;
   reading: boolean;
@@ -48,7 +48,7 @@ export type Profile = {
   name: string;
   bio: string;
   links: string;
-  avatar?: string;
+  avatar?: string | undefined;
 };
 
 export const defaultProfile: Profile = {

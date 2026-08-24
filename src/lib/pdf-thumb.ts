@@ -13,7 +13,7 @@ export async function renderFirstPage(file: Blob): Promise<string | undefined> {
     canvas.height = Math.ceil(viewport.height);
     const context = canvas.getContext("2d");
     if (!context) return undefined;
-    await page.render({ canvasContext: context, viewport, canvas }).promise;
+    await page.render({ canvasContext: context, viewport }).promise;
     return canvas.toDataURL("image/jpeg", 0.8);
   } catch (error) {
     console.error("cover render failed", error);
