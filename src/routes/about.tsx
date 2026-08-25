@@ -23,6 +23,7 @@ export const Route = createFileRoute("/about")({
 function About() {
   const [profile, setProfile] = useState<Profile>(defaultProfile);
   const [editing, setEditing] = useState(false);
+  const { owner } = useOwner();
 
   useEffect(() => {
     getProfile().then(setProfile);
