@@ -84,13 +84,15 @@ function About() {
             <h1 className="mt-6 font-display text-4xl">{profile.name}</h1>
             <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">{profile.bio}</p>
             <p className="mt-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">{profile.links}</p>
-            <button
-              type="button"
-              onClick={() => setEditing(true)}
-              className="mt-8 rounded-full border border-border px-6 py-3 text-xs uppercase tracking-[0.16em] transition-colors hover:bg-secondary"
-            >
-              Edit profile
-            </button>
+            {owner && (
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                className="mt-8 rounded-full border border-border px-6 py-3 text-xs uppercase tracking-[0.16em] transition-colors hover:bg-secondary"
+              >
+                Edit profile
+              </button>
+            )}
           </>
         )}
       </div>
