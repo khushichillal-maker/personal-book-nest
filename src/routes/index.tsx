@@ -96,6 +96,7 @@ function Library() {
             ))}
           </div>
 
+          {owner ? (
           <div className="flex items-center gap-2">
             <select
               value={uploadGenre}
