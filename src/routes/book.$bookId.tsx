@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, BookOpen, Check, Heart, Trash2 } from "lucide-react";
 import { type Book, deleteBook, getBook, putBook } from "@/lib/library-db";
 import { formatMb } from "@/hooks/use-library";
+import { useOwner } from "@/hooks/use-owner";
 
 export const Route = createFileRoute("/book/$bookId")({
   head: () => ({
