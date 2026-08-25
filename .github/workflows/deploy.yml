@@ -22,38 +22,33 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Build static site
+      - name: Build static SPA
         env:
-          NITRO_PRESET: static
+          GITHUB_PAGES: "true"
         run: npm run build
 
       - name: Prepare Pages artifact
         run: |
           set -e
-          # Static export lands in dist/public; fall back to the client dir.
-          if [ -d dist/public ]; then
-            OUT=dist/public
-          else
-            OUT=dist/client
-          fi
-          echo "Publishing $OUT"
-          ls -la "$OUT"
-          # SPA fallback so client-side routes work on Pages.
-          if [ -f "$OUT/index.html" ] && [ ! -f "$OUT/404.html" ]; then
-            cp "$OUT/index.html" "$OUT/404.html"
-          fi
+          OUT=dist/public
+          rm -rf "$OUT"
+          mkdir -p "$OUT"
+          cp -r dist/client/. "$OUT"/
+          # TanStack Start writes the prerendered SPA shell as _shell.html.
+          cp "$OUT/_shell.html" "$OUT/index.html"
+          cp "$OUT/_shell.html" "$OUT/404.html"
           # Stop Jekyll from stripping _-prefixed asset folders.
           touch "$OUT/.nojekyll"
-          echo "OUT=$OUT" >> "$GITHUB_ENV"
+          ls -la "$OUT"
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ env.OUT }}
+          path: dist/public
 
   deploy:
     needs: build
