@@ -45,6 +45,19 @@ export function BookSpine({ book }: { book: Book }) {
       </div>
       <p className="mt-3 line-clamp-2 font-display text-lg leading-snug">{book.title}</p>
       <p className="text-xs tracking-wide text-muted-foreground">{formatMb(book.size)}</p>
+      {genres.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {genres.slice(0, 3).map((genre) => (
+            <span
+              key={genre}
+              className="rounded-full bg-secondary px-2 py-0.5 text-[0.55rem] uppercase tracking-[0.12em] text-secondary-foreground"
+            >
+              {genre}
+            </span>
+          ))}
+        </div>
+      )}
+
     </Link>
   );
 }
