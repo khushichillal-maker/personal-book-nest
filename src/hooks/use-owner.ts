@@ -10,7 +10,7 @@ export function useOwner() {
   }, []);
 
   const unlock = useCallback(async (passcode: string) => {
-    if (passcode !== "alaiwa") return false;
+    if (passcode.trim() !== "booknest2026") return false;
     localStorage.setItem(KEY, "1");
     setOwner(true);
     return true;
