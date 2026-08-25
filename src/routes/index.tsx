@@ -35,6 +35,7 @@ export const Route = createFileRoute("/")({
 
 function Library() {
   const { books, loading, busy, addFiles } = useLibrary();
+  const { owner } = useOwner();
   const [genre, setGenre] = useState("ALL");
   const [shelf, setShelf] = useState<(typeof SHELVES)[number]["key"]>("all");
   const [query, setQuery] = useState("");
