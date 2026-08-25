@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Heart, Check } from "lucide-react";
 import type { Book } from "@/lib/library-db";
 import { formatMb } from "@/hooks/use-library";
+import { bookGenres } from "@/lib/genres";
+
 
 export function BookSpine({ book }: { book: Book }) {
   return (
