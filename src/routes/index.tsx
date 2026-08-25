@@ -4,6 +4,7 @@ import { Loader2, Plus } from "lucide-react";
 import { LibraryHeader } from "@/components/library/Header";
 import { BookSpine } from "@/components/library/BookSpine";
 import { useLibrary } from "@/hooks/use-library";
+import { useOwner } from "@/hooks/use-owner";
 
 const GENRES = ["ALL", "NONFICTION", "FICTION", "MYSTERY & THRILLER", "FANTASY", "ROMANCE"];
 const SHELVES = [
