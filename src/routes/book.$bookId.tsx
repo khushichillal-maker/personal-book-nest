@@ -85,40 +85,46 @@ function BookDetail() {
           <h1 className="mt-2 font-display text-4xl leading-tight sm:text-5xl">{book.title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{formatMb(book.size)} · PDF</p>
 
-          <div className="mt-8 flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={read}
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-xs uppercase tracking-[0.16em] text-primary-foreground shadow-soft transition-opacity hover:opacity-90"
-            >
-              <BookOpen className="h-4 w-4" /> Read
-            </button>
-            <button
-              type="button"
-              onClick={() => patch({ favorite: !book.favorite })}
-              className={`inline-flex items-center gap-2 rounded-full border px-6 py-3 text-xs uppercase tracking-[0.16em] transition-colors ${
-                book.favorite ? "border-primary bg-accent text-accent-foreground" : "border-border bg-card"
-              }`}
-            >
-              <Heart className={`h-4 w-4 ${book.favorite ? "fill-current" : ""}`} /> My Fav
-            </button>
-            <button
-              type="button"
-              onClick={() => patch({ finished: !book.finished, reading: book.finished })}
-              className={`inline-flex items-center gap-2 rounded-full border px-6 py-3 text-xs uppercase tracking-[0.16em] transition-colors ${
-                book.finished ? "border-primary bg-accent text-accent-foreground" : "border-border bg-card"
-              }`}
-            >
-              <Check className="h-4 w-4" /> Finished
-            </button>
-            <button
-              type="button"
-              onClick={remove}
-              className="inline-flex items-center gap-2 rounded-full border border-destructive/40 px-6 py-3 text-xs uppercase tracking-[0.16em] text-destructive transition-colors hover:bg-destructive/10"
-            >
-              <Trash2 className="h-4 w-4" /> Delete
-            </button>
-          </div>
+          {owner ? (
+            <div className="mt-8 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={read}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-xs uppercase tracking-[0.16em] text-primary-foreground shadow-soft transition-opacity hover:opacity-90"
+              >
+                <BookOpen className="h-4 w-4" /> Read
+              </button>
+              <button
+                type="button"
+                onClick={() => patch({ favorite: !book.favorite })}
+                className={`inline-flex items-center gap-2 rounded-full border px-6 py-3 text-xs uppercase tracking-[0.16em] transition-colors ${
+                  book.favorite ? "border-primary bg-accent text-accent-foreground" : "border-border bg-card"
+                }`}
+              >
+                <Heart className={`h-4 w-4 ${book.favorite ? "fill-current" : ""}`} /> My Fav
+              </button>
+              <button
+                type="button"
+                onClick={() => patch({ finished: !book.finished, reading: book.finished })}
+                className={`inline-flex items-center gap-2 rounded-full border px-6 py-3 text-xs uppercase tracking-[0.16em] transition-colors ${
+                  book.finished ? "border-primary bg-accent text-accent-foreground" : "border-border bg-card"
+                }`}
+              >
+                <Check className="h-4 w-4" /> Finished
+              </button>
+              <button
+                type="button"
+                onClick={remove}
+                className="inline-flex items-center gap-2 rounded-full border border-destructive/40 px-6 py-3 text-xs uppercase tracking-[0.16em] text-destructive transition-colors hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4" /> Delete
+              </button>
+            </div>
+          ) : (
+            <div className="card-soft mt-8 px-6 py-5 text-sm text-muted-foreground">
+              This shelf is a showcase. Reading and downloading are disabled for visitors to respect copyright.
+            </div>
+          )}
         </div>
       </div>
     </main>
