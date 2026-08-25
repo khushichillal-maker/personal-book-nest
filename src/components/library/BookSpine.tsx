@@ -6,6 +6,8 @@ import { bookGenres } from "@/lib/genres";
 
 
 export function BookSpine({ book }: { book: Book }) {
+  const genres = bookGenres(book);
+
   return (
     <Link
       to="/book/$bookId"
