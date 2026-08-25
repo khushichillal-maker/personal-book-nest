@@ -7,7 +7,9 @@ export type Book = {
   favorite: boolean;
   finished: boolean;
   reading: boolean;
-  genre: string;
+  genres: string[];
+  /** Legacy single-category field kept for books saved before multi-select. */
+  genre?: string | undefined;
   file: Blob;
 };
 

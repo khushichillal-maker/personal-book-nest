@@ -18,7 +18,7 @@ export function useLibrary() {
   }, [refresh]);
 
   const addFiles = useCallback(
-    async (files: FileList | File[], genre: string) => {
+    async (files: FileList | File[], genres: string[]) => {
       setBusy(true);
       try {
         for (const file of Array.from(files)) {
