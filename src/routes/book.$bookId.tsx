@@ -36,7 +36,7 @@ function BookDetail() {
     const next = genres.includes(value)
       ? genres.filter((item) => item !== value)
       : [...genres, value];
-    await patch({ genres: next, genre: next[0] });
+    await patch({ genres: next, genre: next[0] ?? "" });
   };
 
   const addTyped = async () => {
@@ -47,7 +47,7 @@ function BookDetail() {
     }
     const next = [...genres, value];
     setTagInput("");
-    await patch({ genres: next, genre: next[0] });
+    await patch({ genres: next, genre: next[0] ?? "" });
   };
 
   const read = () => {
