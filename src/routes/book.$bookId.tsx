@@ -20,6 +20,7 @@ export const Route = createFileRoute("/book/$bookId")({
 function BookDetail() {
   const { bookId } = Route.useParams();
   const navigate = useNavigate();
+  const { owner } = useOwner();
   const [book, setBook] = useState<Book | null | undefined>(undefined);
 
   useEffect(() => {
