@@ -1,32 +1,22 @@
 import { useEffect, useState } from "react";
 import { getAllBooks, putBook } from "@/lib/library-db";
-// @ts-ignore
 import * as pdfjsLib from "pdfjs-dist";
-if (typeof window!== "undefined") {
-  // @ts-ignore
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
-}
+// @ts-ignore
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
 
-export const formatMb = (bytes: number) => {
-  const mb = bytes / (1024 * 1024);
-  if (mb >= 100) return mb.toFixed(0) + " MB";
-  if (mb >= 1) return mb.toFixed(1) + " MB";
-  return (bytes / 1024).toFixed(0) + " KB";
-};
+export const formatMb = (b:number) => `${(b/1024/1024).toFixed(1)} MB`;
 
-const makeCover = async (file: File): Promise<string | undefined> => {
+const generateCoverFromFile = async (file: File) => {
   try {
-    // Skip cover for >150MB to avoid crash
-    if (file.size > 150 * 1024 * 1024) return undefined;
-    const buf = await file.slice(0, 30 * 1024 * 1024).arrayBuffer(); // read only first 30MB
+    if (!file || file.size > 80*1024*1024) return undefined;
+    const buf = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
     const page = await pdf.getPage(1);
-    const viewport = page.getViewport({ scale: 0.5 });
+    const vp = page.getViewport({ scale: 0.6 });
     const canvas = document.createElement("canvas");
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
+    canvas.width = vp.width; canvas.height = vp.height;
     const ctx = canvas.getContext("2d")!;
-    await page.render({ canvasContext: ctx, viewport } as any).promise;
+    await page.render({ canvasContext: ctx, viewport: vp } as any).promise;
     return canvas.toDataURL("image/jpeg", 0.7);
   } catch { return undefined; }
 };
@@ -39,44 +29,34 @@ export const useLibrary = () => {
   const refresh = async () => {
     setLoading(true);
     const all = await getAllBooks();
-    all.sort((a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0));
+    // AUTO-FIX old books that have no cover
+    for (const b of all) {
+      if (!b.cover && b.file) {
+        const c = await generateCoverFromFile(b.file);
+        if (c) {
+          b.cover = c;
+          await putBook(b);
+        }
+      }
+    }
+    all.sort((a:any,b:any)=> (b.createdAt||0)-(a.createdAt||0));
     setBooks(all);
     setLoading(false);
   };
 
-  useEffect(() => { refresh(); }, []);
+  useEffect(()=>{ refresh(); },[]);
 
   const addFiles = async (fileList: FileList, genre: string) => {
     setBusy(true);
-    try {
-      const files = Array.from(fileList);
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (file.size > 500 * 1024 * 1024) {
-          alert(`${file.name} bigger than 500 MB!`);
-          continue;
-        }
-        const cover = await makeCover(file);
-        const id = Date.now().toString() + "-" + i + "-" + file.name.replace(/[^a-z0-9]/gi, "_");
-        const newBook = {
-          id,
-          title: file.name.replace(/\.pdf$/i, ""),
-          genre: genre || "FICTION",
-          size: file.size,
-          file,
-          cover, // <-- real cover here!
-          createdAt: Date.now(),
-          favorite: false,
-          finished: false,
-          reading: false,
-        };
-        await putBook(newBook);
+    try{
+      for(const file of Array.from(fileList)){
+        if(file.size > 500*1024*1024){ alert(file.name+" >500MB"); continue; }
+        const cover = await generateCoverFromFile(file);
+        const id = Date.now()+"-"+Math.random().toString(36).slice(2);
+        await putBook({ id, title: file.name.replace(/\.pdf$/i,""), genre: genre||"FICTION", size: file.size, file, cover, createdAt: Date.now() });
       }
       await refresh();
-    } finally {
-      setBusy(false);
-    }
+    } finally{ setBusy(false); }
   };
-
   return { books, loading, busy, addFiles, refresh };
 };
