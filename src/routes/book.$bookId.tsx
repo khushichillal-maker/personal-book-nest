@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, BookOpen, Check, Heart, Trash2 } from "lucide-react";
+import { ArrowLeft, BookOpen, Check, Heart, Plus, Trash2, X } from "lucide-react";
 import { type Book, deleteBook, getBook, putBook } from "@/lib/library-db";
 import { formatMb } from "@/hooks/use-library";
 import { useOwner } from "@/hooks/use-owner";
+import { ALL_GENRES, bookGenres } from "@/lib/genres";
 
 export const Route = createFileRoute("/book/$bookId")({
   component: BookDetail,
@@ -14,14 +15,10 @@ function BookDetail() {
   const navigate = useNavigate();
   const { owner } = useOwner();
   const [book, setBook] = useState<Book | null | undefined>(undefined);
-  const [editGenre, setEditGenre] = useState(false);
-  const [newGenre, setNewGenre] = useState("");
+  const [tagInput, setTagInput] = useState("");
 
   useEffect(() => {
-    getBook(bookId).then((found) => {
-      setBook(found ?? null);
-      if (found) setNewGenre(found.genre || "");
-    });
+    getBook(bookId).then((found) => setBook(found ?? null));
   }, [bookId]);
 
   const patch = async (changes: Partial<Book>) => {
@@ -31,9 +28,26 @@ function BookDetail() {
     setBook(next);
   };
 
-  const saveGenre = async () => {
-    await patch({ genre: newGenre.toUpperCase() });
-    setEditGenre(false);
+  const genres = book ? bookGenres(book) : [];
+
+  const toggleGenre = async (genre: string) => {
+    const value = genre.trim().toUpperCase();
+    if (!value) return;
+    const next = genres.includes(value)
+      ? genres.filter((item) => item !== value)
+      : [...genres, value];
+    await patch({ genres: next, genre: next[0] });
+  };
+
+  const addTyped = async () => {
+    const value = tagInput.trim().toUpperCase();
+    if (!value || genres.includes(value)) {
+      setTagInput("");
+      return;
+    }
+    const next = [...genres, value];
+    setTagInput("");
+    await patch({ genres: next, genre: next[0] });
   };
 
   const read = () => {
@@ -62,22 +76,76 @@ function BookDetail() {
         <div>
           <h1 className="font-display text-4xl sm:text-5xl">{book.title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">{formatMb(book.size)} · PDF</p>
+
           <div className="mt-6 rounded-2xl border border-border bg-card px-5 py-4">
-            <p className="text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground">About this book</p>
-            <p className="mt-2 font-display text-xl">This book - {book.genre || "Unknown"}</p>
+            <p className="text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground">Genres</p>
+
+            {genres.length > 0 ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {genres.map((genre) => (
+                  <span
+                    key={genre}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-[0.65rem] uppercase tracking-[0.14em]"
+                  >
+                    {genre}
+                    {owner && (
+                      <button type="button" onClick={() => toggleGenre(genre)} aria-label={`Remove ${genre}`}>
+                        <X className="h-3 w-3" />
+                      </button>
+                    )}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-2 text-sm text-muted-foreground">No genres yet</p>
+            )}
+
             {owner && (
-              <div className="mt-4">
-                {!editGenre ? (
-                  <button onClick={() => setEditGenre(true)} className="text-xs uppercase tracking-widest underline text-muted-foreground">Edit genre</button>
-                ) : (
-                  <div className="flex gap-2">
-                    <input value={newGenre} onChange={(e) => setNewGenre(e.target.value)} placeholder="e.g. SCI-FI" className="flex-1 rounded-full border border-border bg-background px-4 py-2 text-xs uppercase outline-none" />
-                    <button onClick={saveGenre} className="rounded-full bg-primary px-4 py-2 text-xs text-primary-foreground">Save</button>
-                  </div>
-                )}
+              <div className="mt-5 space-y-4">
+                <div className="flex gap-2">
+                  <input
+                    value={tagInput}
+                    onChange={(event) => setTagInput(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        void addTyped();
+                      }
+                    }}
+                    placeholder="Type a genre, e.g. DARK ROMANCE"
+                    className="flex-1 rounded-full border border-border bg-background px-4 py-2 text-xs uppercase outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void addTyped()}
+                    className="inline-flex items-center gap-1 rounded-full bg-primary px-4 py-2 text-xs uppercase tracking-[0.14em] text-primary-foreground"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Add
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {ALL_GENRES.map((genre) => {
+                    const active = genres.includes(genre);
+                    return (
+                      <button
+                        key={genre}
+                        type="button"
+                        onClick={() => void toggleGenre(genre)}
+                        className={`rounded-full border px-3 py-1.5 text-[0.65rem] uppercase tracking-[0.14em] transition-colors ${
+                          active
+                            ? "border-foreground bg-foreground text-background"
+                            : "border-border text-muted-foreground hover:bg-secondary"
+                        }`}
+                      >
+                        {genre}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
+
           {owner ? (
             <div className="mt-8 flex flex-wrap gap-3">
               <button type="button" onClick={read} className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-xs uppercase tracking-[0.16em] text-primary-foreground"><BookOpen className="h-4 w-4" /> Read</button>
