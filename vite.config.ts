@@ -13,6 +13,8 @@ const isGitHubPages = process.env["GITHUB_PAGES"] === "true";
 export default defineConfig({
   vite: isGitHubPages ? { base: "/personal-book-nest/" } : {},
 
+  nitro: isGitHubPages ? false : undefined,
+
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
