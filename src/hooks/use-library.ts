@@ -67,4 +67,4 @@ export const useLibrary = () => {
 // lightweight cover generator — only for small files
 async function makeCover(file: Blob): Promise<string | undefined> {
   return undefined; // skip cover for now to allow 1GB — you can add pdfjs later if you want
-}
+    }
