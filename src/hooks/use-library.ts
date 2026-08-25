@@ -29,7 +29,7 @@ export const useLibrary = () => {
   const refresh = async () => {
     setLoading(true);
     const all = await getAllBooks();
-    // AUTO-FIX old books that have no cover
+    // AUTO-FIX old beige books
     for (const b of all) {
       if (!b.cover && b.file) {
         const c = await generateCoverFromFile(b.file);
@@ -50,13 +50,36 @@ export const useLibrary = () => {
     setBusy(true);
     try{
       for(const file of Array.from(fileList)){
-        if(file.size > 500*1024*1024){ alert(file.name+" >500MB"); continue; }
-        const cover = await generateCoverFromFile(file);
+        if(file.size > 500*1024*1024){ 
+          alert(file.name+" >500MB skipped"); 
+          continue; 
+        }
         const id = Date.now()+"-"+Math.random().toString(36).slice(2);
-        await putBook({ id, title: file.name.replace(/\.pdf$/i,""), genre: genre||"FICTION", size: file.size, file, cover, createdAt: Date.now() });
+        // Save instantly so book appears on shelf
+        const newBook: any = {
+          id,
+          title: file.name.replace(/\.pdf$/i,"").replace(/OceanofPDF\.com_/gi,"").trim(),
+          genre: genre||"FICTION",
+          size: file.size,
+          file,
+          cover: undefined,
+          createdAt: Date.now()
+        };
+        await putBook(newBook);
+        // Generate cover in background, then update
+        generateCoverFromFile(file).then(async (c)=>{
+          if(c){
+            newBook.cover = c;
+            await putBook(newBook);
+            await refresh();
+          }
+        });
       }
       await refresh();
-    } finally{ setBusy(false); }
+    } finally{ 
+      setBusy(false); 
+    }
   };
-  return { books, loading, busy, addFiles, refresh };
+
+  return { books, loading, busy, addFiles, refresh, formatMb };
 };
