@@ -1,26 +1,63 @@
-name: Deploy to Pages
+name: Deploy to GitHub Pages
+
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm install
-      - run: npm run build
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build static site
+        env:
+          NITRO_PRESET: static
+        run: npm run build
+
+      - name: Prepare Pages artifact
+        run: |
+          set -e
+          # Static export lands in dist/public; fall back to the client dir.
+          if [ -d dist/public ]; then
+            OUT=dist/public
+          else
+            OUT=dist/client
+          fi
+          echo "Publishing $OUT"
+          ls -la "$OUT"
+          # SPA fallback so client-side routes work on Pages.
+          if [ -f "$OUT/index.html" ] && [ ! -f "$OUT/404.html" ]; then
+            cp "$OUT/index.html" "$OUT/404.html"
+          fi
+          # Stop Jekyll from stripping _-prefixed asset folders.
+          touch "$OUT/.nojekyll"
+          echo "OUT=$OUT" >> "$GITHUB_ENV"
+
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: ${{ env.OUT }}
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
