@@ -6,23 +6,18 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
+// GitHub Pages build: `GITHUB_PAGES=true npm run build` produces a client-only
+// SPA (shell prerendered to dist/client/index.html) served from a subpath.
+const isGitHubPages = process.env["GITHUB_PAGES"] === "true";
+
 export default defineConfig({
-  // GitHub Pages serves this project from a subpath.
-  vite: { base: "/personal-book-nest/" },
+  vite: isGitHubPages ? { base: "/personal-book-nest/" } : {},
 
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
-  },
-  // Outside the Lovable build (e.g. GitHub Actions) produce a fully static
-  // export in dist/public that GitHub Pages can host directly.
-  nitro: {
-    preset: "static",
-    output: {
-      dir: "dist",
-      publicDir: "dist/public",
-      serverDir: "dist/server",
-    },
+    // On GitHub Pages there is no server runtime, so ship a static SPA shell.
+    ...(isGitHubPages ? { spa: { enabled: true } } : {}),
   },
 });
