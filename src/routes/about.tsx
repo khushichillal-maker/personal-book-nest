@@ -50,7 +50,7 @@ function About() {
           className="mx-auto h-28 w-28 rounded-full object-cover shadow-soft"
         />
 
-        {editing ? (
+        {editing && owner ? (
           <div className="mt-8 space-y-4 text-left">
             <input
               value={profile.name}
