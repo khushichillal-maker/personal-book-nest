@@ -34,6 +34,7 @@ export const deleteBook = async (id: string) => {
   await db.delete(STORE, id);
 };
 
+// --- PROFILE - THIS FIXES YOUR RED X ---
 export const defaultProfile = {
   id: "profile",
   name: "Reader",
@@ -58,9 +59,8 @@ export const putProfile = async (p: any) => {
   return p;
 };
 
-export const getProgress = async () => null;
-export const putProgress = async (p: any) => p;
-export const defaultBooks: any[] = [];
+// about.tsx wants saveProfile - alias to putProfile
+export const saveProfile = putProfile;
+
 export type Book = any;
 export type Profile = any;
-export type Progress = any;
