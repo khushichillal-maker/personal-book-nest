@@ -2,7 +2,8 @@
 export type Book = {
   id: string;
   title: string;
-  genre: string;
+  genre?: string;
+  genres?: string[];
   size: number;
   file: File;
   cover?: string;
@@ -18,6 +19,7 @@ export type Profile = {
   name: string;
   bio?: string;
   avatar?: string;
+  links?: string;
 };
 
 export const defaultProfile: Profile = {
