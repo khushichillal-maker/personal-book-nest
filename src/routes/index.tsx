@@ -131,6 +131,11 @@ function Library() {
               {busy ? "Shelving" : "Upload PDF"}
             </button>
           </div>
+          ) : (
+            <p className="text-[0.7rem] uppercase tracking-[0.14em] text-muted-foreground">
+              Showcase only · reading disabled
+            </p>
+          )}
         </div>
 
         <section className="mt-8">
