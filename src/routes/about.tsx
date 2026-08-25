@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { defaultProfile, getProfile, saveProfile, type Profile } from "@/lib/library-db";
 import curatorAvatar from "@/assets/curator.jpg";
+import { useOwner } from "@/hooks/use-owner";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
