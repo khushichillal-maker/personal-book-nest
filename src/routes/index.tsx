@@ -4,6 +4,7 @@ import { Loader2, Plus } from "lucide-react";
 import { LibraryHeader } from "@/components/library/Header";
 import { BookSpine } from "@/components/library/BookSpine";
 import { useLibrary } from "@/hooks/use-library";
+import { useOwner } from "@/hooks/use-owner";
 
 const GENRES = ["ALL", "NONFICTION", "FICTION", "MYSTERY & THRILLER", "FANTASY", "ROMANCE"];
 const SHELVES = [
@@ -34,6 +35,7 @@ export const Route = createFileRoute("/")({
 
 function Library() {
   const { books, loading, busy, addFiles } = useLibrary();
+  const { owner } = useOwner();
   const [genre, setGenre] = useState("ALL");
   const [shelf, setShelf] = useState<(typeof SHELVES)[number]["key"]>("all");
   const [query, setQuery] = useState("");
@@ -94,6 +96,7 @@ function Library() {
             ))}
           </div>
 
+          {owner ? (
           <div className="flex items-center gap-2">
             <select
               value={uploadGenre}
@@ -128,6 +131,11 @@ function Library() {
               {busy ? "Shelving" : "Upload PDF"}
             </button>
           </div>
+          ) : (
+            <p className="text-[0.7rem] uppercase tracking-[0.14em] text-muted-foreground">
+              Showcase only · reading disabled
+            </p>
+          )}
         </div>
 
         <section className="mt-8">
